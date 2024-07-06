@@ -1,8 +1,13 @@
 "use client";
 
 import { useState } from "react";
+import Axios from "axios";
+import { useRouter } from "next/navigation";
 
 export default function SignupForm() {
+  const router = useRouter();
+  const [loading, setLoading] = useState(false);
+  const [isError, setIsError] = useState(false);
   const [user, setUser] = useState({
     email: "",
     username: "",
@@ -10,15 +15,52 @@ export default function SignupForm() {
     confirmPassword: "",
   });
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log(user);
+    if (
+      user.email === "" ||
+      user.username === "" ||
+      user.password === "" ||
+      user.confirmPassword === ""
+    ) {
+      return;
+    }
+    if (user.password !== user.confirmPassword) {
+      alert("Password and confirm Password does not match");
+      return;
+    }
+    if (user.password.length < 8) {
+      setIsError("Password must atleast 8 character");
+      return;
+    }
+    //  console.log(user);
+    try {
+      setIsError(false);
+      setLoading(true);
+      const response = await Axios.post("/api/users/signup", user);
+      console.log(response.data);
+      setLoading(false);
+      router.push("/login");
+    } catch (error) {
+      const { data, status } = error.response;
+      if (status !== 500) {
+        setIsError(data.message);
+        setLoading(false);
+        return;
+      } else {
+        setIsError("there was an error, try again later");
+        setLoading(false);
+        return;
+      }
+    }
   };
 
   return (
     <form
       onSubmit={handleSubmit}
-      className="flex flex-col justify-center items-center  gap-y-2 mt-6 mb-3"
+      className={`flex flex-col justify-center items-center  gap-y-2 mt-6 ${
+        !isError && "mb-3"
+      }`}
     >
       <label className="input input-bordered flex items-center gap-2">
         <svg
@@ -99,7 +141,13 @@ export default function SignupForm() {
           placeholder="Confirm Password"
         />
       </label>
-      <button className="btn btn-outline btn-secondary w-full">Sign Up</button>
+      <button
+        disabled={loading}
+        className="btn btn-outline btn-secondary w-full disabled:opacity-75"
+      >
+        {loading ? "Signing in..." : "Sign Up"}
+      </button>
+      <p className="text-xs inset-0 text-red-500">{isError && isError}</p>
     </form>
   );
 }

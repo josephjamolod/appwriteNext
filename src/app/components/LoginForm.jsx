@@ -1,22 +1,53 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useState } from "react";
+import Axios from "axios";
+import Loader from "../components/Loader";
 
 export default function LoginForm() {
+  const router = useRouter();
+  const [loading, setLoading] = useState(false);
+  const [isError, setIsError] = useState(false);
   const [user, setUser] = useState({
     email: "",
     password: "",
   });
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log(user);
+    if (user.email === "" || user.password === "") {
+      return;
+    }
+    try {
+      setIsError(false);
+      setLoading(true);
+      const response = await Axios.post("/api/users/login", user);
+      console.log(response.data);
+      setLoading(false);
+      router.push("/");
+    } catch (error) {
+      // console.log(error);
+      const { data, status } = error.response;
+      if (status !== 500) {
+        setIsError(data.message);
+        setLoading(false);
+        return;
+      } else {
+        setIsError("there was an error, try again later");
+        setLoading(false);
+
+        return;
+      }
+    }
   };
 
   return (
     <form
       onSubmit={handleSubmit}
-      className="flex flex-col justify-center items-center  gap-y-2 mt-6 mb-3"
+      className={`flex flex-col justify-center items-center  gap-y-2 mt-6 ${
+        !isError && "mb-3"
+      }`}
     >
       <label className="input input-bordered flex items-center gap-2">
         <svg
@@ -58,7 +89,13 @@ export default function LoginForm() {
           placeholder="Password"
         />
       </label>
-      <button className="btn btn-outline btn-secondary w-full">Log In</button>
+      <button
+        disabled={loading}
+        className="btn btn-outline btn-secondary w-full"
+      >
+        {loading ? <Loader size={"xs"} /> : "Log In"}
+      </button>
+      <p className="text-xs inset-0 text-red-500">{isError && isError}</p>
     </form>
   );
 }

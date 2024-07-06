@@ -9,7 +9,7 @@ export default function SignUpPage() {
       <SignupForm />
       <p>
         Already have an account?{" "}
-        <Link className="hover:underline text-blue-900" href={"/login"}>
+        <Link className="hover:underline text-blue-600" href={"/login"}>
           Sign in
         </Link>
       </p>

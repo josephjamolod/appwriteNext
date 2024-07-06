@@ -1,10 +1,11 @@
 import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
 
 const userSchema = new mongoose.Schema({
   email: {
     type: String,
-    required: [true, "Please Provide an Email"],
+    required: [true, "Please Provide a valid Email"],
     match: [
       /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
       "Please provide a valid email",
@@ -40,6 +41,20 @@ userSchema.pre("save", async function () {
   this.password = await bcrypt.hash(this.password, salt);
 });
 
-const User = mongoose.models.users || mongoose.model("User", userSchema);
+userSchema.methods.comparePassword = async function (candidatePassword) {
+  const passwordMatch = await bcrypt.compare(candidatePassword, this.password);
+  return passwordMatch;
+};
+
+userSchema.methods.createJWT = async function () {
+  const token = await jwt.sign(
+    { userID: this._id, email: this.email },
+    process.env.JWT_SECRET,
+    { expiresIn: process.env.JWT_LIFETIME }
+  );
+  return token;
+};
+
+const User = mongoose.models.User || mongoose.model("User", userSchema);
 
 export default User;
