@@ -41,6 +41,7 @@ export default function SignupForm() {
       console.log(response.data);
       setLoading(false);
       router.push("/login");
+      return;
     } catch (error) {
       const { data, status } = error.response;
       if (status !== 500) {

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import LogOutBtn from "./LogOutBtn";
 
 const navLinks = [
   { href: "/login", link: "log in" },
@@ -21,6 +22,7 @@ export default function Navbar() {
             </Link>
           );
         })}
+        <LogOutBtn />
       </ul>
     </div>
   );

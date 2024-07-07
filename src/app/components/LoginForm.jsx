@@ -26,6 +26,7 @@ export default function LoginForm() {
       console.log(response.data);
       setLoading(false);
       router.push("/");
+      return;
     } catch (error) {
       // console.log(error);
       const { data, status } = error.response;
