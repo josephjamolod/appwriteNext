@@ -23,6 +23,7 @@ export default function SignupForm() {
       user.password === "" ||
       user.confirmPassword === ""
     ) {
+      setIsError("All fields cannot be empty");
       return;
     }
     if (user.password !== user.confirmPassword) {
@@ -41,17 +42,13 @@ export default function SignupForm() {
       console.log(response.data);
       setLoading(false);
       router.push("/login");
-      return;
     } catch (error) {
+      setLoading(false);
       const { data, status } = error.response;
       if (status !== 500) {
         setIsError(data.message);
-        setLoading(false);
-        return;
       } else {
         setIsError("there was an error, try again later");
-        setLoading(false);
-        return;
       }
     }
   };

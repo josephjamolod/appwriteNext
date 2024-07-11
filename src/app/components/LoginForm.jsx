@@ -17,6 +17,7 @@ export default function LoginForm() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (user.email === "" || user.password === "") {
+      setIsError("Email and password cannot be empty");
       return;
     }
     try {
@@ -26,19 +27,14 @@ export default function LoginForm() {
       console.log(response.data);
       setLoading(false);
       router.push("/");
-      return;
     } catch (error) {
       // console.log(error);
+      setLoading(false);
       const { data, status } = error.response;
       if (status !== 500) {
         setIsError(data.message);
-        setLoading(false);
-        return;
       } else {
         setIsError("there was an error, try again later");
-        setLoading(false);
-
-        return;
       }
     }
   };

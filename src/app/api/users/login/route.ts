@@ -34,7 +34,7 @@ export async function POST(request: NextRequest) {
     const userWithoutPassword = await User.findById(user).select("-password");
     const response = NextResponse.json(
       {
-        message: "User successfully created",
+        message: "User successfully logged in",
         success: true,
         userWithoutPassword,
       },
